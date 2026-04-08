@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Body
 from fastapi.responses import JSONResponse
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -48,7 +48,7 @@ def rate_limit_handler(request, exc):
 
 @app.post("/igdb/{endpoint}")
 @limiter.limit("30/minute")
-async def igdb_proxy(request: Request,endpoint: str, body: str):
+async def igdb_proxy(request: Request,endpoint: str, body: str = Body(...)):
     token = await get_token()
 
     headers = {
