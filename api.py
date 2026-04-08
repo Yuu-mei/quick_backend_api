@@ -48,7 +48,7 @@ def rate_limit_handler(request, exc):
 
 @app.post("/igdb/{endpoint}")
 @limiter.limit("30/minute")
-async def igdb_proxy(request: Request,endpoint: str, body: str = Body(...)):
+async def igdb_proxy(request: Request,endpoint: str, body: str = Body(..., media_type="text/plain")):
     token = await get_token()
 
     headers = {
