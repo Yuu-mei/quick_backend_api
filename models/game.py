@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from models.age_rating import AgeRatingResponse
 from models.genre import GenreResponse
@@ -48,23 +48,25 @@ class GameResponseBase(BaseModel):
     id: int;
     name: str;
     cover_url: str;
-    genres: Optional[List[GenreResponse]] = None;
-    tags: Optional[List[int]] = None;
-    age_ratings: Optional[List[AgeRatingResponse]] = None;
     release_date: Optional[str] = None;
     avg_rating: float;
     
 class FranchiseResponse(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     id: int;
     name: str;
     games: Optional[List[GameResponseBase]] = None;
 
 class GameDetailResponse(GameResponseBase):
+    genres: Optional[List[GenreResponse]|GenreResponse] = None;
+    tags: Optional[List[int]] = None;
+    age_ratings: Optional[List[AgeRatingResponse]|AgeRatingResponse] = None;
     dlcs: Optional[List[int]] = None;
     expansions: Optional[List[int]] = None;
     franchise: Optional[List[int]] = None;
     parent_game: Optional[GameResponseBase] = None;
     
 class GameAdditionalContentResponse(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     dlcs: List[GameResponseBase];
     expansions: List[GameResponseBase];

@@ -1,13 +1,25 @@
 from typing import List
 
 from fastapi import Body, FastAPI, HTTPException, Request
+from contextlib import asynccontextmanager
+import httpx
 from slowapi.errors import RateLimitExceeded
-from igdb.services import get_game_additional_content, get_game_details, get_latest_games, get_popular_games, simple_search_games
+from igdb.services import get_franchise_games, get_game_additional_content, get_game_details, get_latest_games, get_popular_games, simple_search_games
 from models.game import PopularityTypes
-from models.requests import AdditionalContentRequest
+from models.requests import AdditionalContentRequest, FranchiseContentRequest
 from utils.rate_limiter import limiter, rate_limit_handler
+import utils.client as igdb_module
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    igdb_module.igdb_client = httpx.AsyncClient(
+        timeout=20.0,
+        http2=True
+    )
+    yield
+    await igdb_module.igdb_client.aclose()
+
+app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
@@ -41,8 +53,9 @@ async def get_game_additional_content_endpoint(request: Request, additional_cont
 
 @app.post("/games/franchise")
 @limiter.limit("30/minute")
-async def get_franchise_games_endpoint(request: Request, franchise_game_ids: List[int]):
-    return await get_game_details(franchise_game_ids=franchise_game_ids)
+async def get_franchise_games_endpoint(request: Request, franchise_game_ids: FranchiseContentRequest = Body(...)):
+    franchise_ids = franchise_game_ids.franchise_ids
+    return await get_franchise_games(franchise_game_ids=franchise_ids)
 
 @app.post("/games/{game_id}")
 @limiter.limit("30/minute")

@@ -1,21 +1,17 @@
-from enum import Enum
-
 from pydantic import BaseModel
-
-class OrganizationEnum(Enum):
-    ESRB = 1;
-    PEGI = 2;
-    CERO = 3;
-    USK = 4;
-    GRAC = 5;
-    CLASS_IND = 6;
-    ACB = 7;
-
-class RatingCategoryResponse(BaseModel):
+    
+class AgeRatingOrganizationResponse(BaseModel):
+    id: int;
+    name: str;
+    
+class AgeRatingCategoryResponse(BaseModel):
+    id: int;
     organization: int;
-    rating: str;
-
+    rating_name: str;
+    
 class AgeRatingResponse(BaseModel):
-    organization: OrganizationEnum;
-    rating: RatingCategoryResponse;
+    id: int;
+    rating_category: AgeRatingCategoryResponse;
+    rating_cover_url: str;
+    rating_organization: AgeRatingOrganizationResponse;
 

@@ -1,7 +1,7 @@
 from fastapi import Body
-import httpx
 from pydantic import Json
 from utils.token import CLIENT_ID, get_token
+import utils.client as igdb_module
 
 
 async def igdb_request(endpoint: str, body: str = Body(..., media_type="text/plain")) -> Json:
@@ -13,8 +13,7 @@ async def igdb_request(endpoint: str, body: str = Body(..., media_type="text/pla
     }
 
     url = f"https://api.igdb.com/v4/{endpoint}"
-
-    async with httpx.AsyncClient() as client:
-        res = await client.post(url=url, headers=headers, content=body)
-        res.raise_for_status()
-        return res.json()
+    
+    res = await igdb_module.igdb_client.post(url=url, headers=headers, content=body)
+    res.raise_for_status()
+    return res.json()
